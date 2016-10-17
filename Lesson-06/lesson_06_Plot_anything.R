@@ -1,11 +1,28 @@
 # ==========================================================
 #
-#               New data set for plotting: variants
+#      Lesson 6 -- Plot anything
+#      •   Bar plots
+#      •   Histograms
+#      •   Scatter plots
+#      •   Box plots
+#      •   Violin plots
+#      •   Density plots
+#      •   Dot-plots
+#      •   Line-plots for time-course data
+#      •   Pie charts
+#      •   Venn diagrams (compare two or more lists of genes)
+#
+# ==========================================================
+
+
+# ==========================================================
+#
+#      New data set for exploring plotting: variants
 #
 # ==========================================================
 
 library(ggplot2)
-theme_set(theme_gray(base_size = 24))
+theme_set(theme_gray(base_size = 18))
 
 # Loading the data
 filename <- "Lesson-06/variants_from_assembly.bed"
@@ -19,14 +36,17 @@ names(my_data)
 names(my_data) <- c("chrom","start","stop","name","size","strand","type","ref.dist","query.dist")
 
 head(my_data)
+summary(my_data$chrom)
 
 # Filtering and polishing data
 my_data <- my_data[my_data$chrom %in% c(seq(1,22),"X","Y","MT"),]
 
     # ordering chromosomes
-my_data$chrom <- factor(gsub("chr", "", my_data$chrom, fixed=TRUE), levels=c(seq(1,22),"X","Y","MT"))
+my_data$chrom <- factor(my_data$chrom, levels=c(seq(1,22),"X","Y","MT"))
     # ordering types
 my_data$type <- factor(my_data$type, levels=c("Insertion","Deletion","Expansion","Contraction"))
+
+####################################################################
 
 
 # Creating a bar plot
@@ -45,6 +65,7 @@ ggplot(my_data, aes(x=ref.dist,y=query.dist,color=type)) + geom_point()
 ggplot(my_data, aes(x=ref.dist,y=query.dist,color=type)) + geom_point() + xlim(-500,500) + ylim(-500,500)
     # color by size (numerical)
 ggplot(my_data, aes(x=ref.dist,y=query.dist,color=size)) + geom_point() + xlim(-500,500) + ylim(-500,500)
+
 ggplot(my_data, aes(x=ref.dist,y=query.dist,color=size)) + geom_point() + xlim(-500,500) + ylim(-500,500) + scale_colour_gradient(limits=c(0,500))
 
 # Creating box plots
@@ -55,11 +76,12 @@ ggplot(my_data, aes(x=type,y=size,fill=type)) + geom_boxplot() + coord_flip()
 # Creating violin plots
 ggplot(my_data, aes(x=type,y=size)) + geom_violin()
 ggplot(my_data, aes(x=type,y=size,fill=type)) + geom_violin() + ylim(0,1000) + guides(fill=FALSE)
-ggplot(my_data, aes(x=type,y=size,fill=type)) + geom_violin(adjust=0.5) + ylim(0,1000)
+ggplot(my_data, aes(x=type,y=size,fill=type)) + geom_violin(adjust=0.2) + ylim(0,1000) + guides(fill=FALSE)
     # default adjust is 1, lower means finer resolution
 
 # You can log-scale any numerical axis on any plot
-ggplot(my_data, aes(x=type,y=size,fill=type)) + geom_violin() + scale_y_log10()
+ggplot(my_data, aes(x=type,y=size,fill=type)) + geom_violin() + 
+    scale_y_log10()
 
 # Creating a density plot
 ggplot(my_data, aes(x=size,fill=type)) + geom_density() + xlim(0,500)
@@ -70,14 +92,14 @@ ggplot(my_data, aes(x=size,fill=type)) + geom_density(position="stack") + xlim(0
 ggplot(my_data, aes(x=size,fill=type)) + geom_density(alpha=0.5) + xlim(0,500)
 
 # Sneak peak at Lesson 7: multifaceted plots:
-ggplot(my_data, aes(x=size,fill=type)) + geom_density(alpha=0.5) + xlim(0,500) + facet_grid(type ~ .)
+ggplot(my_data, aes(x=size,fill=type)) + geom_density() + xlim(0,500) + facet_grid(type ~ .)
 
 
 # Creating dot plots
 ggplot(my_data, aes(x=size,fill=type)) + geom_dotplot()
-    # makes more sense with fewer observations where each individual item matters, 
-    # so let's grab the largest events and see what chromosomes they fall on
-large_data <- my_data[my_data$size>5000,]
+    # a dot plot makes more sense with fewer observations where each individual item matters, 
+    # so let's grab the largest events only
+large_data <- my_data[my_data$size>5000,  ] # [rows,columns]
 ggplot(large_data, aes(x=size,fill=type)) + geom_dotplot(method="histodot")
 # careful, they don't stack automatically, so some of the dots are behind others
 ggplot(large_data, aes(x=size,fill=type)) + geom_dotplot(method="histodot",stackgroups=TRUE)
@@ -95,70 +117,56 @@ ggplot(time_course, aes(x=seconds,y=value,colour=sample)) + geom_line()
 ggplot(time_course, aes(x=seconds,y=value,colour=sample)) + geom_line(size=3)
 
 
+
 # For fun:
 # Any plot can be made in polar coordinates:
+    # line plot
 ggplot(time_course, aes(x=seconds,y=value,colour=sample)) + geom_line(size=3) + coord_polar()
+
+    # violin plot
 ggplot(my_data, aes(x=type,y=size,fill=type)) + geom_violin(adjust=0.5) + ylim(0,1000) + coord_polar()
+    # bar plot
 ggplot(my_data, aes(x=size,fill=type)) + geom_bar(binwidth=5) + xlim(0,500) + coord_polar()
 
 
-
 # Pie charts
+type_counts = summary(my_data$type)
+type_counts
 
-# While ggplot doesn't come with pie charts, we can hack one together:
-# This function makes it happen:
-pie_with_ggplot <- function(my_data,type) {
-    # inspired by mathematicalcoffee.blogspot.com/2014/06/ggpie-pie-graphs-in-ggplot2.html
-    
-    counts <- summary(my_data[,type])
-    
-    ggplot(my_data, aes(x=factor(1),fill=type)) + geom_bar(width=1) + coord_polar(theta="y") + 
-        # special theme for pie charts
-        theme(axis.title = element_blank(), 
-              axis.text.y = element_blank(), 
-              axis.ticks=element_blank(), 
-              panel.grid.major = element_blank(), 
-              panel.grid.minor = element_blank(), 
-              panel.background=element_blank(),
-              axis.text.x = element_text(color="black")
-              #               plot.margin = unit(rep(-2,4),"lines")
-        ) + 
-        # labels
-        scale_y_continuous(breaks=cumsum(counts)-counts/2, labels=names(counts)) + 
-        # remove legend
-        guides(fill=FALSE)
-}
-
-# but it's really simple to just run that function
-png(file="Lesson-06/pie.png",width=800,height=800)
-pie_with_ggplot(my_data,"type")
-dev.off()
-
-
+pie(type_counts)
+pie(type_counts,col=brewer.pal(length(type_counts),"Set1"))
 
 
 # Gene lists for Venn Diagram
 listA <- read.csv("Lesson-06/genes_list_A.txt",header=FALSE)
 A <- listA$V1
+A
 
 listB <- read.csv("Lesson-06/genes_list_B.txt",header=FALSE)
 B <- listB$V1
+B
 
 listC <- read.csv("Lesson-06/genes_list_C.txt",header=FALSE)
 C <- listC$V1
+C
 
 listD <- read.csv("Lesson-06/genes_list_D.txt",header=FALSE)
 D <- listD$V1
+D
 
-
+length(A)
+length(B)
+length(C)
+length(D)
 
 # install package VennDiagram
 library(VennDiagram)
+
 # This function only works by saving directly to a file
+
 venn.diagram(list("list C"=C, "list D"=D), fill = c("yellow","cyan"), cex = 1.5, filename="Lesson-06/Venn_diagram_genes_2.png")
 
 venn.diagram(list(A = A, C = C, D = D), fill = c("yellow","red","cyan"), cex = 1.5,filename="Lesson-06/Venn_diagram_genes_3.png")
 
 venn.diagram(list(A = A, B = B, C = C, D = D), fill = c("yellow","red","cyan","forestgreen"), cex = 1.5,filename="Lesson-06/Venn_diagram_genes_4.png")
-
 

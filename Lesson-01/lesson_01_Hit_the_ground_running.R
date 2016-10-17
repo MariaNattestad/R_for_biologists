@@ -1,6 +1,16 @@
+# ==========================================================
+#
+#      Lesson 1 -- Hit the ground running
+#      •   Reading in data
+#      •   Creating a quick plot
+#      •   Saving publication-quality plots in multiple 
+#          file formats (.png, .jpg, .pdf, and .tiff)
+#
+# ==========================================================
+
 
 # Go to the packages tab in the bottom right part of Rstudio, click "Install" at the top, type in ggplot2, and hit Install
-# Go to the Files tab in the bottom right part of Rstudio, navigate to where you have saved your data file, in this case "variant_data.txt",
+# Go to the Files tab in the bottom right part of Rstudio, navigate to where you can see the Lesson-01 folder. 
 # then click "More" and choose "Set As Working Directory"
 
 library(ggplot2)
@@ -21,5 +31,32 @@ head(my_data)
 
 # Now we can make an initial plot and see how it looks
 ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
+
+
+# Save the plot to a file
+
+# Different file formats:
+png("Lesson-01/plot.png")
+ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
+dev.off()
+
+tiff("Lesson-01/plot.tiff")
+ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
+dev.off()
+
+jpeg("Lesson-01/plot.jpg")
+ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
+dev.off()
+
+pdf("Lesson-01/plot.pdf")
+ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
+dev.off()
+
+# High-resolution:
+png("Lesson-01/plot_hi_res.png",1000,1000)
+ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
+dev.off()
+
+
 
 

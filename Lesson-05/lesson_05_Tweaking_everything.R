@@ -1,9 +1,21 @@
 # ==========================================================
-#         Loading, filtering, etc. from Lessons 1-4
+#
+#      Lesson 5 -- Tweaking everything in your plots
+#      •   Text, axis labels
+#      •   Legends
+#      •   Color palettes
+#      •   Sizes, fonts, line-widths, tick-marks, 
+#          grid-lines, and background-colors
+#
 # ==========================================================
+
+
+# Loading, filtering, etc. from Lessons 1-4:
+#            (shortened version)
+
 library(ggplot2)
 
-filename <- "Lesson-04/Encode_HMM_data.txt"
+filename <- "Lesson-05/Encode_HMM_data.txt"
 my_data <- read.csv(filename, sep="\t", header=FALSE)
 names(my_data)[1:4] <- c("chrom","start","stop","type")
 
@@ -19,6 +31,7 @@ my_data$type <- revalue(my_data$type, c("1_Active_Promoter"="Promoter", "4_Stron
 
 # Check the plot again
 ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
+
 # ==========================================================
 
 # The basics
@@ -48,8 +61,9 @@ basic
 # To recover the default theme:
 theme_set(theme_gray())
 basic
+
 # I prefer larger text myself
-theme_set(theme_gray(base_size = 20))
+theme_set(theme_gray(base_size = 16))
 basic
 
 #==============================================================================
@@ -69,14 +83,20 @@ colors()
 # What happens if we need a lot of colors?
 chrom_plot <- ggplot(my_data,aes(x=type,fill=chrom)) + geom_bar()
 chrom_plot
+
 # rainbow is confusing, but color palettes are too short:
 chrom_plot + scale_fill_brewer(type="qual",palette=1)
 
 
 # to get the colors from a palette:
 palette1 <- brewer.pal(9,"Set1")
+palette1
+
 palette2 <- brewer.pal(8,"Set2")
+palette2
+
 palette3 <- brewer.pal(9,"Set3")
+palette3
 
 # We can use a quick pie chart to see the colors:
 pie(rep(1,length(palette1)),col=palette1)
@@ -94,14 +114,15 @@ pie(rep(1,length(big_palette)),col=big_palette)
 chrom_plot + scale_fill_manual(values = big_palette)
 
 # To shuffle the colors:
-chrom_plot + scale_fill_manual(values = sample(colors))
+chrom_plot + scale_fill_manual(values = sample(big_palette))
 
 
-# if you want to keep the colors the same every time you plot, use set.seed()
-set.seed(1)
+# if you want to keep the colors the same every time you plot, 
+# use set.seed()
+set.seed(5)
 # use different numbers until you find your favorite colors
+chrom_plot + scale_fill_manual(values = sample(big_palette))
 
-chrom_plot + scale_fill_manual(values = sample(colors))
 # This is possible, because:
 # Fun fact: "Random" numbers from a computer aren't really random
 
@@ -109,13 +130,13 @@ chrom_plot + scale_fill_manual(values = sample(colors))
 # Color-blind safe palettes:
 display.brewer.all(colorblindFriendly=TRUE)
 # Mixing them might remove the color-friendly-ness so be careful
-# Finding a set of 23 colors that a color-blind person can distinguish is a challenge, you might need to find a color-blind friend to experiment on
+# Finding a set of 23 colors that a color-blind person can distinguish is a challenge
 
 basic + scale_fill_brewer(palette="Set2")
 
 
 # Done with colors
-#==============================================================================
+#======================================================================
 
 # Default:
 theme_set(theme_gray())
@@ -133,12 +154,17 @@ basic + theme_gray(base_size = 24, base_family = "Times New Roman")
 
 
 # Font size for labels, tick labels, and legend separately ##############################
-basic + theme(axis.text=element_text(size=20))
-basic + theme(axis.title=element_text(size=20))
-basic + theme(legend.title=element_text(size=20))
+basic + theme(axis.text=element_text(size=20)) # numbers on axes
+basic + theme(axis.title=element_text(size=20)) # titles on axes
+basic + theme(legend.title=element_text(size=20)) # legend title
 basic + theme(legend.text=element_text(size=20,family="Times New Roman"))
+    # legend category labels
 
-basic + theme(legend.text=element_text(family="Times New Roman"),axis.title=element_text(size=30),axis.text=element_text(size=20)) # Mix and match
+basic + theme(
+    legend.text=element_text(size=20,family="Times New Roman"),
+    axis.title=element_text(size=30),
+    axis.text=element_text(size=20)
+    ) # Mix and match
 
 
 # Change background color
@@ -148,12 +174,16 @@ basic + theme(panel.background = element_rect(fill="white"))
 # Change grid-lines
 basic + theme(panel.grid.major = element_line(colour = "blue"), panel.grid.minor = element_line(colour = "red"))
 
+    # Remove all gridlines:
+basic + theme(panel.grid.major = element_line(NA), 
+              panel.grid.minor = element_line(NA))
+
+    # Thin black major gridlines on y-axis, the others are removed
 basic + theme(panel.grid.major.y = element_line(colour = "black",size=0.2), 
               panel.grid.major.x = element_line(NA),
               panel.grid.minor = element_line(NA))
 
-basic + theme(panel.grid.major = element_line(NA), 
-              panel.grid.minor = element_line(NA))
+
 
 # Change tick-marks
 basic # normal ticks
@@ -161,8 +191,8 @@ basic + theme(axis.ticks = element_line(size=2))
 basic + theme(axis.ticks = element_line(NA))
 basic + theme(axis.ticks = element_line(color="blue",size=2))
 basic + theme(axis.ticks = element_line(size=2), # affects both x and y
-              axis.ticks.x = element_line(color="blue"),
-              axis.ticks.y = element_line(color="red"))
+              axis.ticks.x = element_line(color="blue"), # x only
+              axis.ticks.y = element_line(color="red"))  # y only
 
 # Place legend in different locations
 basic + theme(legend.position="top")
@@ -171,16 +201,20 @@ basic + theme(legend.position=c(0,0)) # bottom left
 basic + theme(legend.position=c(1,1)) # top right
 basic + theme(legend.position=c(0.8,0.8)) # near the top right
 
+# Remove legend title
+basic + labs(fill="")
+basic + labs(fill="") + theme(legend.position=c(0.8,0.8))
+
 # Remove legend completely
 basic + guides(fill=FALSE)
 
-# Remove legend title
-basic + labs(fill="")
 
 # clear background, axis lines but no box, no grid lines, basic colors, no legend
-basic + guides(fill=FALSE) +  theme(axis.line = element_line(size=0.5),panel.background = element_rect(fill=NA,size=rel(20)), panel.grid.minor = element_line(colour = NA), axis.text = element_text(size=16), axis.title = element_text(size=18)) 
+publication_style <- basic + guides(fill=FALSE) +  theme(axis.line = element_line(size=0.5),panel.background = element_rect(fill=NA,size=rel(20)), panel.grid.minor = element_line(colour = NA), axis.text = element_text(size=16), axis.title = element_text(size=18)) 
 
-+ scale_y_continuous(expand=c(0,0)) # to stop the bars from floating above the x-axis
+publication_style
+
+publication_style + scale_y_continuous(expand=c(0,0)) # to stop the bars from floating above the x-axis
 
 
 # You can set the theme with all these changes and have it apply to all the future plots
@@ -189,9 +223,10 @@ theme_set(theme_gray()+theme(axis.line = element_line(size=0.5),panel.background
 basic
 
 # These tweaks aren't part of the theme, so you will still have to add them separately to each plot
-basic + scale_y_continuous(expand=c(0,0)) + guides(fill=FALSE) 
+basic + scale_y_continuous(expand=c(0,0)) + guides(fill=FALSE)
+
 
 # and you can always reset to defaults with:
 theme_set(theme_gray())
-
+basic
 

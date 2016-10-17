@@ -1,3 +1,12 @@
+# ==========================================================
+#
+#      Lesson 4 -- Filtering and cleaning up data
+#      •   Removing "chr" prefixes
+#      •   Getting chromosomes in the right order
+#      •   Filtering out excess data
+#      •   Renaming categories
+#
+# ==========================================================
 
 #############     We start this the same as in lesson 1     ###############
 
@@ -23,25 +32,29 @@ ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
 
 #############     In Lesson 3 we decided on some issues to fix     #############
 
-# 1)    Chromosomes in the wrong order
-# 2)    Too many types
-# 3)    Bad names for the types
+# 1)    Remove "chr" prefix from chromosome names
+# 2)    Order the chromosomes correctly
+# 3)    Pick a subset of the types and rename them
 
 summary(my_data$chrom)
 summary(my_data$type)
 
 #############     Now let's address those issues     ###############
 
+# Remove the "chr" prefix
+my_data$chrom <- factor(gsub("chr", "", my_data$chrom))
+# levels = possibilities/categories
 
-# remove the "chr" prefix
-
-my_data$chrom <- gsub("chr", "", my_data$chrom, fixed=TRUE)
+# See the result
+summary(my_data$chrom)
 
 ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
 
-# reorder the chromosomes numerically
+# Reorder the chromosomes numerically
+seq(1,22)
+c(seq(1,22),"X","Y")
 
-my_data$chrom <- factor(gsub("chr", "", my_data$chrom, fixed=TRUE), levels=c(seq(1,22),"X","Y"))
+my_data$chrom <- factor(my_data$chrom, levels=c(seq(1,22),"X","Y"))
 
 summary(my_data$chrom)
 
@@ -54,13 +67,18 @@ ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
 summary(my_data$type)
 
 # Filter to just a few types I'm interested in
-my_data <- my_data[my_data$type %in% c("1_Active_Promoter","4_Strong_Enhancer","8_Insulator"),]
+my_data <- my_data[my_data$type %in% c("1_Active_Promoter","4_Strong_Enhancer","8_Insulator"), ]
+
+summary(my_data$type)
 
 # Rename the types
-
 library(plyr) # this library has a useful revalue() function
 my_data$type <- revalue(my_data$type, c("1_Active_Promoter"="Promoter", "4_Strong_Enhancer"="Enhancer","8_Insulator"="Insulator"))
 
+summary(my_data$type)
+
 # Check the plot again
 ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
+
+
 

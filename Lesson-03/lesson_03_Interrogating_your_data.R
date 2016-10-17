@@ -1,3 +1,11 @@
+# ==========================================================
+#
+#      Lesson 3 -- Interrogating your data
+#      •   Counting categorical variables
+#      •   Mean, median, standard deviation
+#      •   Finding issues
+#
+# ==========================================================
 
 #############     We start this the same as in lesson 1     ###############
 
@@ -37,10 +45,19 @@ summary(my_data$type)
 summary(my_data$start)
 summary(my_data$stop)
 
+
+# We can even make a new column by doing math on the other columns
+my_data$size = my_data$stop - my_data$start
+
+# So now there's a new column
+head(my_data)
+
 # Basic statistics:
+summary(my_data$size)
 
 mean(my_data$size)
 sd(my_data$size)
+
 median(my_data$size)
 max(my_data$size)
 min(my_data$size)
@@ -49,7 +66,7 @@ min(my_data$size)
 # Let's think about the issues and in the next lesson we will learn how to deal with them
 ggplot(my_data,aes(x=chrom,fill=type)) + geom_bar()
 
-# 1)    Chromosomes in the wrong order, and the "chr" don't fit on the x-axis
+# 1)    Chromosomes in the wrong order, and the "chr" prefixes don't fit on the x-axis
 # 2)    Too many types
 # 3)    Bad names for the types
 
