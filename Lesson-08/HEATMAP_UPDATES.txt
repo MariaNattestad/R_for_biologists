@@ -1,0 +1,6 @@
+UPDATES for newer R versions (updated in 2020):
+1. You may need to replace `source("https://bioconductor.org/biocLite.R")` with `biocLite("ComplexHeatmap")`
+2. `*_hclust_*` was replaced with `*_dend_*` in the package. For example, `row_hclust_side` became `row_dend_side`.
+3. Other issues? See the ComplexHeatmap documentation at https://jokergoo.github.io/ComplexHeatmap-reference/book/introduction.html
+
+
